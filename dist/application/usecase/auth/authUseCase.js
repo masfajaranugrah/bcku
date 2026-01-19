@@ -333,6 +333,9 @@ class AuthUseCase {
         if (user.company && !user.company.isActive) {
             throw new AppError_1.AppError("Mohon maaf, perusahaan Anda di-banned oleh admin", 403);
         }
+        // DEBUG: Log company info
+        console.log("🔍 DEBUG LOGIN - user.company:", JSON.stringify(user.company, null, 2));
+        console.log("🔍 DEBUG LOGIN - user.company?.paketId:", user.company?.paketId);
         const isMatch = await bcrypt_1.default.compare(data.password, user.password);
         if (!isMatch)
             throw new AppError_1.AppError("Password salah", 400);
@@ -347,7 +350,7 @@ class AuthUseCase {
             paketId: user.company?.paketId || null,
         };
         const accessToken = jsonwebtoken_1.default.sign(payload, env_1.config.ACCESS_TOKEN, { expiresIn: "15m" });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id, companyId: user.companyId, paketId: user.userPaket?.id || null }, env_1.config.REFRESH_TOKEN, { expiresIn: "7d" });
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id, companyId: user.companyId, paketId: user.company?.paketId || null }, env_1.config.REFRESH_TOKEN, { expiresIn: "7d" });
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: env_1.config.isProd,
@@ -372,7 +375,7 @@ class AuthUseCase {
                 companyId: user.companyId,
                 departmentId: user.departmentId,
                 status: user.isVerified,
-                paketId: user.userPaket?.id || null, // ⚡ ambil dari relasi
+                paketId: user.company?.paketId || null, // ⚡ ambil dari company
             },
             accessToken,
             refreshToken,

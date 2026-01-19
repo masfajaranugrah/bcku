@@ -25,5 +25,13 @@ router.post(
   subscriptionController.callback.bind(subscriptionController)
 );
 
+// Manual verify payment - useful when callback fails
+router.post(
+  "/subscription/verify/:orderId",
+  authMiddleware,
+  subscriptionController.verifyPayment.bind(subscriptionController)
+);
+
 export default router;
+
 

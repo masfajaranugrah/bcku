@@ -111,10 +111,13 @@ class CreateSubscriptionUseCase {
     }
     // Handle callback Midtrans
     async handleCallback(payload) {
+        console.log("[MIDTRANS CALLBACK] Received payload:", JSON.stringify(payload, null, 2));
         // Verify signature to prevent spoofing
         if (!this.verifySignature(payload)) {
+            console.error("[MIDTRANS CALLBACK] Signature verification FAILED");
             throw new AppError_1.AppError("Invalid signature", 403);
         }
+        console.log("[MIDTRANS CALLBACK] Signature verification PASSED");
         const { order_id, transaction_status } = payload;
         let status = "PENDING";
         switch (transaction_status) {
@@ -128,21 +131,110 @@ class CreateSubscriptionUseCase {
                 status = "FAILED";
                 break;
         }
+        console.log(`[MIDTRANS CALLBACK] Order: ${order_id}, Transaction Status: ${transaction_status}, Mapped Status: ${status}`);
         // Update status pembayaran di database
         await this.repo.updatePaymentStatus(order_id, status);
+        console.log(`[MIDTRANS CALLBACK] Payment status updated to ${status}`);
         if (status === "SUCCESS") {
             const paymentLog = await PaymentLogModel_1.default.findOne({
                 where: { orderId: order_id },
             });
+            console.log("[MIDTRANS CALLBACK] PaymentLog found:", paymentLog ? {
+                id: paymentLog.id,
+                userId: paymentLog.userId,
+                companyId: paymentLog.companyId,
+                packageId: paymentLog.packageId,
+                duration: paymentLog.duration,
+            } : null);
             if (paymentLog) {
                 const endDate = new Date();
-                endDate.setMonth(endDate.getMonth() + 1); // contoh durasi 1 bulan
+                endDate.setMonth(endDate.getMonth() + paymentLog.duration); // Use actual duration from payment log
                 // Aktifkan paket user
                 await this.repo.activatePackage(paymentLog.userId, paymentLog.packageId, endDate);
+                console.log(`[MIDTRANS CALLBACK] User package activated for userId: ${paymentLog.userId}`);
                 // Update paket di tabel company
-                await models_1.CompanyModel.update({ paketId: paymentLog.packageId }, { where: { id: paymentLog.companyId } });
+                const [affectedRows] = await models_1.CompanyModel.update({ paketId: paymentLog.packageId }, { where: { id: paymentLog.companyId } });
+                console.log(`[MIDTRANS CALLBACK] Company paketId updated. Affected rows: ${affectedRows}, companyId: ${paymentLog.companyId}, new paketId: ${paymentLog.packageId}`);
+                if (affectedRows === 0) {
+                    console.error(`[MIDTRANS CALLBACK] WARNING: No company rows updated! companyId might be invalid: ${paymentLog.companyId}`);
+                }
+            }
+            else {
+                console.error(`[MIDTRANS CALLBACK] PaymentLog NOT FOUND for orderId: ${order_id}`);
             }
         }
+    }
+    // Manual verify payment status from Midtrans API
+    async verifyPaymentManual(orderId) {
+        console.log(`[MANUAL VERIFY] Starting verification for orderId: ${orderId}`);
+        // Find payment log
+        const paymentLog = await PaymentLogModel_1.default.findOne({
+            where: { orderId },
+        });
+        if (!paymentLog) {
+            throw new AppError_1.AppError("Payment log not found", 404);
+        }
+        console.log("[MANUAL VERIFY] PaymentLog found:", {
+            id: paymentLog.id,
+            userId: paymentLog.userId,
+            companyId: paymentLog.companyId,
+            packageId: paymentLog.packageId,
+            currentStatus: paymentLog.transactionStatus,
+        });
+        // Check status from Midtrans API using Snap (same configuration as createTransaction)
+        const snap = new midtrans_client_1.default.Snap({
+            isProduction: env_1.config.isProd,
+            serverKey: env_1.config.MIDTRANS_SERVER_KEY,
+            clientKey: env_1.config.MIDTRANS_CLIENT_KEY,
+        });
+        // Manually call Midtrans API to get transaction status
+        const serverKey = env_1.config.MIDTRANS_SERVER_KEY;
+        const auth = Buffer.from(`${serverKey}:`).toString("base64");
+        const baseUrl = env_1.config.isProd
+            ? "https://api.midtrans.com"
+            : "https://api.sandbox.midtrans.com";
+        const response = await fetch(`${baseUrl}/v2/${orderId}/status`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "Authorization": `Basic ${auth}`,
+            },
+        });
+        const midtransStatus = await response.json();
+        console.log("[MANUAL VERIFY] Midtrans status response:", midtransStatus);
+        let status = "PENDING";
+        switch (midtransStatus.transaction_status) {
+            case "settlement":
+            case "capture":
+                status = "SUCCESS";
+                break;
+            case "cancel":
+            case "deny":
+            case "expire":
+                status = "FAILED";
+                break;
+        }
+        // Update payment status
+        await this.repo.updatePaymentStatus(orderId, status);
+        console.log(`[MANUAL VERIFY] Payment status updated to ${status}`);
+        if (status === "SUCCESS") {
+            const endDate = new Date();
+            endDate.setMonth(endDate.getMonth() + paymentLog.duration);
+            // Activate package
+            await this.repo.activatePackage(paymentLog.userId, paymentLog.packageId, endDate);
+            console.log(`[MANUAL VERIFY] User package activated for userId: ${paymentLog.userId}`);
+            // Update company paketId
+            const [affectedRows] = await models_1.CompanyModel.update({ paketId: paymentLog.packageId }, { where: { id: paymentLog.companyId } });
+            console.log(`[MANUAL VERIFY] Company paketId updated. Affected rows: ${affectedRows}`);
+        }
+        return {
+            orderId,
+            midtransStatus: midtransStatus.transaction_status,
+            mappedStatus: status,
+            paymentLogId: paymentLog.id,
+            companyId: paymentLog.companyId,
+            packageId: paymentLog.packageId,
+        };
     }
 }
 exports.CreateSubscriptionUseCase = CreateSubscriptionUseCase;

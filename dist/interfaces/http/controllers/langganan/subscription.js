@@ -35,6 +35,26 @@ class SubscriptionController {
             res.json({ status: "success" });
         }
         catch (err) {
+            console.error("[CALLBACK ERROR]", err);
+            res.status(err.statusCode || 500).json({ error: err.message });
+        }
+    }
+    // Manual verification endpoint
+    async verifyPayment(req, res) {
+        const { orderId } = req.params;
+        if (!orderId) {
+            return res.status(400).json({ error: "orderId is required" });
+        }
+        try {
+            const result = await this.createSubscriptionUseCase.verifyPaymentManual(orderId);
+            res.json({
+                status: "success",
+                message: "Payment verified successfully",
+                data: result,
+            });
+        }
+        catch (err) {
+            console.error("[VERIFY PAYMENT ERROR]", err);
             res.status(err.statusCode || 500).json({ error: err.message });
         }
     }

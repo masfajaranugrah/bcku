@@ -26,5 +26,13 @@ export declare class CreateSubscriptionUseCase {
      */
     private verifySignature;
     handleCallback(payload: any): Promise<void>;
+    verifyPaymentManual(orderId: string): Promise<{
+        orderId: string;
+        midtransStatus: any;
+        mappedStatus: string;
+        paymentLogId: any;
+        companyId: any;
+        packageId: any;
+    }>;
 }
 //# sourceMappingURL=CreateSubscriptionUseCase.d.ts.map

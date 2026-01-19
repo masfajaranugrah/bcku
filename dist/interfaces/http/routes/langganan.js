@@ -15,5 +15,7 @@ router.post("/subscription/order/:companyId/:userId", authMiddleware_1.authMiddl
 }), subscriptionController.createOrder.bind(subscriptionController));
 // Callback Midtrans - public endpoint but with signature verification in use case
 router.post("/subscription/callback", subscriptionController.callback.bind(subscriptionController));
+// Manual verify payment - useful when callback fails
+router.post("/subscription/verify/:orderId", authMiddleware_1.authMiddleware, subscriptionController.verifyPayment.bind(subscriptionController));
 exports.default = router;
 //# sourceMappingURL=langganan.js.map

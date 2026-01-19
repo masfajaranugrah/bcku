@@ -5,5 +5,6 @@ export declare class SubscriptionController {
     private createSubscriptionUseCase;
     createOrder(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
     callback(req: Request, res: Response): Promise<void>;
+    verifyPayment(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 }
 //# sourceMappingURL=subscription.d.ts.map
