@@ -1,0 +1,8 @@
+export interface Permissions {
+    id?: string;
+    name: string;
+    description?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+//# sourceMappingURL=Permission.d.ts.map

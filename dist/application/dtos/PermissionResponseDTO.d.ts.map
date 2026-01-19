@@ -1,0 +1,1 @@
+{"version":3,"file":"PermissionResponseDTO.d.ts","sourceRoot":"","sources":["../../../src/application/dtos/PermissionResponseDTO.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,qBAAqB;IACpC,MAAM,EAAE,MAAM,CAAC;IACf,OAAO,EAAE,MAAM,CAAC;IAChB,IAAI,EAAE,MAAM,EAAE,CAAC;CAChB"}

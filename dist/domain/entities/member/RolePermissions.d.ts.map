@@ -1,0 +1,1 @@
+{"version":3,"file":"RolePermissions.d.ts","sourceRoot":"","sources":["../../../../src/domain/entities/member/RolePermissions.ts"],"names":[],"mappings":"AACA,MAAM,WAAW,eAAe;IAC9B,IAAI,EAAE,GAAG,CAAC;IACV,EAAE,CAAC,EAAE,MAAM,CAAC;IACZ,MAAM,EAAE,MAAM,CAAC;IACf,YAAY,EAAE,MAAM,CAAC;CACtB"}

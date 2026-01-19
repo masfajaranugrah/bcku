@@ -1,0 +1,1 @@
+{"version":3,"file":"kpi.d.ts","sourceRoot":"","sources":["../../../../src/domain/entities/kpi_evaluasi/kpi.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,GAAG;IAChB,EAAE,CAAC,EAAE,MAAM,CAAC;IACZ,QAAQ,EAAE,MAAM,CAAC;IACjB,QAAQ,EAAE,MAAM,CAAC;IACjB,MAAM,EAAE,MAAM,CAAC;IACf,OAAO,EAAE,MAAM,CAAC;IAChB,SAAS,CAAC,EAAE,IAAI,CAAC;IACjB,SAAS,CAAC,EAAE,IAAI,CAAC;CACpB"}

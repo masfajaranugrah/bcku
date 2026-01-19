@@ -1,0 +1,1 @@
+{"version":3,"file":"PackageDTO.d.ts","sourceRoot":"","sources":["../../../src/application/dtos/PackageDTO.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,UAAU;IACzB,IAAI,EAAE,MAAM,CAAC;IACb,QAAQ,EAAE,MAAM,EAAE,CAAC;IACnB,KAAK,EAAE,MAAM,CAAC;CACf;AAED,MAAM,WAAW,gBAAgB;IAC/B,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,QAAQ,CAAC,EAAE,MAAM,EAAE,CAAC;IACpB,KAAK,CAAC,EAAE,MAAM,CAAC;CAChB"}

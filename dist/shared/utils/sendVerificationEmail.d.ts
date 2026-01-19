@@ -1,0 +1,2 @@
+export declare function sendVerificationEmail(email: string, token: string, tokenExpiresAt: Date, verificationEmailToken: string, verificationEmailTokenExpires: Date): Promise<void>;
+//# sourceMappingURL=sendVerificationEmail.d.ts.map

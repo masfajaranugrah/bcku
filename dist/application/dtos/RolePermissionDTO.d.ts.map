@@ -1,0 +1,1 @@
+{"version":3,"file":"RolePermissionDTO.d.ts","sourceRoot":"","sources":["../../../src/application/dtos/RolePermissionDTO.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,iBAAiB;IAChC,MAAM,EAAE,MAAM,CAAC;IACf,aAAa,EAAE,MAAM,EAAE,CAAC;IACxB,SAAS,EAAE,MAAM,CAAC;CACnB"}
